@@ -1,19 +1,21 @@
 import Task from "./Task";
-import { TASK_STATUS } from "../const";
 import { TaskType } from "../types";
 
 type ListPropsType = {
   title: string;
   bgColor: string;
   taskList: TaskType[];
+  handleEditClick: (id: string) => void;
 };
 
-const List = ({ title, bgColor, taskList }: ListPropsType) => {
+const List = ({ title, bgColor, taskList, handleEditClick }: ListPropsType) => {
   return (
-    <div className={`grow rounded p-4 flex flex-col gap-2 ${bgColor}`}>
+    <div className={`w-full lg:w-[33%] rounded p-4 flex flex-col gap-2 ${bgColor}`}>
       <h1>{title}</h1>
       {taskList.map((task: TaskType) => (
-        <Task key={task.id} {...task} />
+        <div key={task.id} onClick={() => handleEditClick(task.id)} className="hover:pointer">
+          <Task {...task} />
+        </div>
       ))}
     </div>
   );
