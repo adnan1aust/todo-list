@@ -7,6 +7,8 @@ import Modal from "./components/Modal";
 import CrateEditTask from "./components/CreateEditTask";
 import Button from "./components/Button";
 import { v4 as uuidv4 } from "uuid";
+import { saveToLocalStorage, getFromLocalStorage } from "./utils/localstorageHelper";
+import { useEffect } from "react";
 
 export default function Home() {
   const [tasks, setTasks] = useState<TaskType[]>([]);
@@ -40,6 +42,21 @@ export default function Home() {
     });
   };
 
+  useEffect(() => {
+    const storedTasks = getFromLocalStorage("todo-app-tasks");
+    if (storedTasks) {
+      setTasks(
+        storedTasks.map((task: TaskType) => ({
+          ...task,
+          createdAt: new Date(task.createdAt),
+          updatedAt: new Date(task.updatedAt),
+          startDate: new Date(task.startDate),
+          endDate: new Date(task.endDate),
+        }))
+      );
+    }
+  }, []);
+
   const closeModal = (): void => {
     setIsModalOpen(false);
     resetDefaultTask();
@@ -60,11 +77,16 @@ export default function Home() {
       updatedAt: new Date(),
     };
     setTasks([newTask, ...tasks]);
+    saveToLocalStorage("todo-app-tasks", [newTask, ...tasks]);
     closeModal();
   };
 
   const updateTask = (task: TaskType) => {
     setTasks(tasks.map((t) => (t.id === task.id ? task : t)));
+    saveToLocalStorage(
+      "todo-app-tasks",
+      tasks.map((t) => (t.id === task.id ? task : t))
+    );
     closeModal();
   };
 
@@ -89,19 +111,19 @@ export default function Home() {
         <List
           title="To-do"
           bgColor="bg-gray-200"
-          taskList={tasks.filter((task) => task.status === TASK_STATUS.PENDING)}
+          taskList={tasks?.filter((task) => task.status === TASK_STATUS.PENDING)}
           handleEditClick={handleEditClick}
         />
         <List
           title="In-Progress"
           bgColor="bg-yellow-200"
-          taskList={tasks.filter((task) => task.status === TASK_STATUS.IN_PROGRESS)}
+          taskList={tasks?.filter((task) => task.status === TASK_STATUS.IN_PROGRESS)}
           handleEditClick={handleEditClick}
         />
         <List
           title="Done"
           bgColor="bg-green-200"
-          taskList={tasks.filter((task) => task.status === TASK_STATUS.DONE)}
+          taskList={tasks?.filter((task) => task.status === TASK_STATUS.DONE)}
           handleEditClick={handleEditClick}
         />
       </div>
